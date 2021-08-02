@@ -1,7 +1,6 @@
 name: Debug build
-
 on:
-   workflow-dispatch
+  workflow-dispatch
     paths-ignore:
       - '**.md'
       - '.github/**'
