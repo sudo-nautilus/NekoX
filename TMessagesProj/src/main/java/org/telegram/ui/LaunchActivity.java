@@ -143,7 +143,6 @@ import org.telegram.ui.Components.Switch;
 import org.telegram.ui.Components.TermsOfServiceView;
 import org.telegram.ui.Components.ThemeEditorView;
 import org.telegram.ui.Components.UndoView;
-import org.telegram.ui.Components.UpdateAppAlertDialog;
 import org.telegram.ui.Components.voip.VoIPHelper;
 import org.webrtc.voiceengine.WebRtcAudioTrack;
 
@@ -330,7 +329,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
         if (Build.VERSION.SDK_INT >= 24) {
             AndroidUtilities.isInMultiwindow = isInMultiWindowMode();
         }
-        Theme.createCommonChatResources(this);
+        Theme.createCommonChatResources();
         Theme.createDialogsResources(this);
         if (SharedConfig.passcodeHash.length() != 0 && SharedConfig.appLocked) {
             SharedConfig.lastPauseTime = (int) (SystemClock.elapsedRealtime() / 1000);
@@ -1852,17 +1851,8 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                                         }
                                                     }
                                                 }
-                                                if (messageId != null && segments.contains("video")) {
-                                                    String str = data.getQuery();
-                                                    DateFormat dateFormat = new SimpleDateFormat("mm:ss");
-                                                    Date reference = null;
-                                                    try {
-                                                        reference = dateFormat.parse("00:00");
-                                                        Date date = dateFormat.parse(str);
-                                                        videoTimestamp = (int) ((date.getTime() - reference.getTime()) / 1000L);
-                                                    } catch (ParseException e) {
-                                                        e.printStackTrace();
-                                                    }
+                                                if (messageId != null) {
+                                                    videoTimestamp = getTimestampFromLink(data);
                                                 }
                                                 botUser = data.getQueryParameter("start");
                                                 botChat = data.getQueryParameter("startgroup");
@@ -2419,7 +2409,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     fragment = new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_CHANGE_PHONE_NUMBER);
                     closePrevious = true;
                 } else if (open_settings == 6) {
-                    fragment = new EditWidgetActivity(open_widget_edit_type, open_widget_edit, true);
+                    fragment = new EditWidgetActivity(open_widget_edit_type, open_widget_edit);
                 } else if (open_settings == 100) {
                     fragment = new NekoSettingsActivity();
                 } else {
@@ -2607,6 +2597,36 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
 
         intent.setAction(null);
         return pushOpened;
+    }
+
+    public static int getTimestampFromLink(Uri data) {
+        List<String> segments = data.getPathSegments();
+        String timestampStr = null;
+        if (segments.contains("video")) {
+            timestampStr = data.getQuery();
+        } else if (data.getQueryParameter("t") != null) {
+            timestampStr = data.getQueryParameter("t");
+        }
+        int videoTimestamp = -1;
+        if (timestampStr != null) {
+            try {
+                videoTimestamp = Integer.parseInt(timestampStr);
+            } catch (Throwable ignore) {
+
+            }
+            if (videoTimestamp == - 1) {
+                DateFormat dateFormat = new SimpleDateFormat("mm:ss");
+                Date reference = null;
+                try {
+                    reference = dateFormat.parse("00:00");
+                    Date date = dateFormat.parse(timestampStr);
+                    videoTimestamp = (int) ((date.getTime() - reference.getTime()) / 1000L);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return videoTimestamp;
     }
 
     private void openDialogsToSend(boolean animated) {
@@ -4008,7 +4028,7 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
        if (requestCode == SCREEN_CAPTURE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 VoIPService service = VoIPService.getSharedInstance();
-                if (service != null && service.groupCall != null) {
+                if (service != null) {
                     VideoCapturerDevice.mediaProjectionPermissionResultData = data;
                     service.createCaptureDevice(true);
                 }

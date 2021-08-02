@@ -911,6 +911,8 @@ add_library(tgcalls STATIC
         voip/tgcalls/VideoCaptureInterface.cpp
         voip/tgcalls/VideoCaptureInterfaceImpl.cpp
         voip/tgcalls/AudioDeviceHelper.cpp
+        voip/tgcalls/SctpDataChannelProviderInterfaceImpl.cpp
+        voip/tgcalls/TurnCustomizerImpl.cpp
         voip/tgcalls/reference/InstanceImplReference.cpp
         voip/tgcalls/legacy/InstanceImplLegacy.cpp
         voip/tgcalls/group/GroupNetworkManager.cpp
@@ -2216,6 +2218,7 @@ add_library(voipandroid STATIC
         voip/webrtc/modules/audio_device/android/audio_manager.cc
         voip/webrtc/modules/audio_device/android/audio_record_jni.cc
         voip/webrtc/modules/audio_device/android/audio_screen_record_jni.cc
+        voip/webrtc/modules/audio_device/android/audio_merged_screen_record_jni.cc
         voip/webrtc/modules/audio_device/android/audio_track_jni.cc
         voip/webrtc/modules/audio_device/android/build_info.cc
         voip/webrtc/modules/audio_device/android/opensles_common.cc
