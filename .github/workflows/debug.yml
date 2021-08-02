@@ -1,9 +1,7 @@
 name: Debug build
 
 on:
-  push:
-    branches:
-      - dev
+   workflow-dispatch
     paths-ignore:
       - '**.md'
       - '.github/**'
